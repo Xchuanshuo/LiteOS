@@ -1,3 +1,0 @@
-/home/legend/Projects/Extend/share/c/LiteOS/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/legend/Projects/Extend/share/c/LiteOS/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/legend/Projects/Extend/share/c/LiteOS/cmake-build-debug/CMakeFiles/LiteOS.dir

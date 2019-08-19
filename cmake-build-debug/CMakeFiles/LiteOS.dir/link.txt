@@ -1,1 +1,0 @@
-/usr/bin/cc -g   CMakeFiles/LiteOS.dir/main.c.o CMakeFiles/LiteOS.dir/kernel/init.c.o CMakeFiles/LiteOS.dir/kernel/main.c.o CMakeFiles/LiteOS.dir/device/timer.c.o CMakeFiles/LiteOS.dir/kernel/debug.c.o CMakeFiles/LiteOS.dir/lib/string.c.o CMakeFiles/LiteOS.dir/lib/kernel/bitmap.c.o CMakeFiles/LiteOS.dir/kernel/memory.c.o CMakeFiles/LiteOS.dir/thread/thread.c.o  -o LiteOS 
