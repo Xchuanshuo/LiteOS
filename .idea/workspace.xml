@@ -11,7 +11,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ae27fce2-866c-4178-a190-c466bf52cfeb" name="Default" comment="" />
+    <list default="true" id="ae27fce2-866c-4178-a190-c466bf52cfeb" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -44,19 +46,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="memory.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/kernel/memory.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="681">
-              <caret line="21" column="13" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
-              <folding>
-                <element signature="e#52#78#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="thread.c" pinned="false" current-in-tab="true">
+      <file leaf-file-name="thread.c" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/thread/thread.c">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="147">
@@ -66,6 +56,11 @@
               </folding>
             </state>
           </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file leaf-file-name="makefile" pinned="false" current-in-tab="false">
@@ -310,12 +305,12 @@
       <workItem from="1566024504954" duration="773000" />
       <workItem from="1566046930648" duration="23317000" />
       <workItem from="1566128892373" duration="7000" />
-      <workItem from="1566128922481" duration="17694000" />
+      <workItem from="1566128922481" duration="18844000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="53982000" />
+    <option name="totallyTimeSpent" value="55132000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -328,16 +323,15 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="25" width="1920" height="1055" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.14180285" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.14180285" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3290653" />
       <window_info anchor="bottom" id="CMake" order="7" weight="0.3290653" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" weight="0.32972974" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.32972974" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.2892741" />
+      <window_info anchor="bottom" id="Terminal" order="7" visible="true" weight="0.2892741" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -362,16 +356,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/kernel/init.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="6" column="6" lean-forward="true" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="6" />
-          <folding>
-            <element signature="e#0#17#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/kernel/io.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
@@ -739,6 +723,9 @@
           </folding>
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
   </component>
   <component name="masterDetails">
