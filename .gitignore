@@ -6,3 +6,4 @@
 /.idea/assetWizardSettings.xml
 /build
 /cmake-build-debug
+/main.c
