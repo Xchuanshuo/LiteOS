@@ -32,9 +32,9 @@ static inline void outsw(uint16_t port, const void* addr, uint32_t word_cnt) {
 }
 
 /* 将从端口port读入的一个字节返回 */
-static inline uint8_t intb(uint16_t port) {
+static inline uint8_t inb(uint16_t port) {
    uint8_t data;
-   asm volatile("intb %w1, %b0" : "=a" (data) : "Nd" (port));
+   asm volatile("inb %w1, %b0" : "=a" (data) : "Nd" (port));
    return data;
 }
 

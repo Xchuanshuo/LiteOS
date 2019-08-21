@@ -2,9 +2,10 @@
 #include "../lib/kernel/print.h"
 #include "interrupt.h"
 #include "../device/timer.h"
-#include "../device/console.h"
 #include "memory.h"
 #include "../thread/thread.h"
+#include "../device/console.h"
+#include "../device/keyboard.h"
 
 void init_all() {
     put_str("init_all\n");
@@ -13,5 +14,6 @@ void init_all() {
     thread_init(); // 初始化线程相关结构
     timer_init();  // 初始化PIT
     console_init(); // 控制台初始化
+    keyboard_init();  // 键盘初始化
 }
 
