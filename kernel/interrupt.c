@@ -87,7 +87,7 @@ static void general_intr_handler(uint8_t vec_nr) {
     set_cursor(0);  // 重置光标为屏幕左上角
     put_str("!!!!!!!     exception message begin !!!!!!!!\n");
     set_cursor(88);  // 从第2行第8个字符开始打印
-    put_str(intr_name[vec_nr]);
+    put_str(intr_name[vec_nr]);put_char('\n');
     if (vec_nr == 14) {
         // 若为Pagefault, 将缺失的地址打印出来并悬停
         int page_fault_vaddr = 0;
@@ -151,7 +151,7 @@ enum intr_status intr_disable() {
     enum intr_status old_status;
     if (INTR_ON == intr_get_status()) {
         old_status = INTR_ON;
-        asm volatile("cli");
+        asm volatile("cli" : : : "memory"); // 关中断,cli指令将IF位置0
         return old_status;
     } else {
         old_status = INTR_OFF;
@@ -185,8 +185,6 @@ void idt_init() {
     pic_init();		   // 初始化8259A
 
     uint64_t idt_operand = ((sizeof(idt) - 1) | ((uint64_t)(uint32_t)idt << 16));
-    asm volatile("lidt %0"
-    :
-    : "m"(idt_operand));
+    asm volatile("lidt %0" : : "m"(idt_operand));
     put_str("idt_init done\n");
 }

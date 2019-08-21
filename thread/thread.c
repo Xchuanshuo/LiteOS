@@ -58,7 +58,7 @@ void init_thread(struct task_struct* pthread, char* name, int prio) {
     // self_kstack是线程自己在内核态下使用的栈顶地址
     pthread->self_kstack = (uint32_t*)((uint32_t)pthread + PG_SIZE);
     pthread->priority = (uint8_t) prio;
-    pthread->ticks = 0;
+    pthread->ticks = (uint8_t) prio;
     pthread->elapsed_ticks = 0;
     pthread->pgdir = NULL;
     pthread->stack_magic = 0x19870916;   // 自定义的魔数
@@ -125,6 +125,34 @@ void schedule() {
     struct task_struct* next = elem2entry(struct task_struct, general_tag, thread_tag);
     next->status = TASK_RUNNING;
     switch_to(cur, next);
+}
+
+/* 当前线程将自己阻塞,标志其状态为stat */
+void thread_block(enum task_status stat) {
+    ASSERT((stat == TASK_BLOCKED) || (stat == TASK_WAITING) || (stat == TASK_HANGING));
+    enum intr_status old_status = intr_disable();
+    struct task_struct* cur_thread = running_thread();
+    cur_thread->status = stat;
+    schedule();
+    // 待当前线程被解除阻塞后才继续运行intr_set_status
+    intr_set_status(old_status);
+}
+
+/* 将线程pthread解除阻塞 */
+void thread_unblock(struct task_struct* pthread) {
+    enum intr_status old_status = intr_disable();
+    ASSERT((pthread->status == TASK_BLOCKED) || (pthread->status == TASK_WAITING)
+           || (pthread->status == TASK_HANGING));
+    if (pthread->status != TASK_READY) {
+        ASSERT(!elem_find(&thread_ready_list, &pthread->general_tag));
+        if (elem_find(&thread_ready_list, &pthread->general_tag)) {
+            PANIC("thread_unblock: blocked thread in ready_list\n");
+        }
+        // 放到队首,让该线程尽早得到调度
+        list_push(&thread_ready_list, &pthread->general_tag);
+        pthread->status = TASK_READY;
+    }
+    intr_set_status(old_status);
 }
 
 /* 初始化线程环境 */
