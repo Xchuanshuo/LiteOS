@@ -6,6 +6,7 @@
 #include "../thread/thread.h"
 #include "../device/console.h"
 #include "../device/keyboard.h"
+#include "../userprog/tss.h"
 
 void init_all() {
     put_str("init_all\n");
@@ -15,5 +16,6 @@ void init_all() {
     timer_init();  // 初始化PIT
     console_init(); // 控制台初始化
     keyboard_init();  // 键盘初始化
+    tss_init();  // tss初始化
 }
 
