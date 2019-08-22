@@ -6,6 +6,7 @@
 #include "../kernel/debug.h"
 #include "../kernel/interrupt.h"
 #include "../kernel/memory.h"
+#include "../userprog/process.h"
 
 #define PG_SIZE 4096
 
@@ -124,6 +125,8 @@ void schedule() {
     // 将general_tag地址转换为pcb所在地址
     struct task_struct* next = elem2entry(struct task_struct, general_tag, thread_tag);
     next->status = TASK_RUNNING;
+    // 激活任务页表等
+    process_activate(next);
     switch_to(cur, next);
 }
 

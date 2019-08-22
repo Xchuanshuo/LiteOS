@@ -2,6 +2,8 @@
 #define __THREAD_THREAD_H
 #include "../lib/stdint.h"
 #include "../lib/kernel/list.h"
+#include "../lib/kernel/bitmap.h"
+#include "../kernel/memory.h"
 
 /* 自定义通用函数类型,它将在很多线程函数中作为形参类型 */
 typedef void thread_func(void*);
@@ -83,8 +85,12 @@ struct task_struct {
     struct list_elem all_list_tag; // 线程队列all_list_thread中的节点
 
     uint32_t* pgdir;   // 进程自己页表的虚拟空间
+    struct virtual_addr userprog_vaddr; // 用户进程的虚拟地址
     uint32_t stack_magic;    // 栈的边界标记,用于检测栈的溢出
 };
+
+extern struct list thread_ready_list;
+extern struct list thread_all_list;
 
 void thread_create(struct task_struct* pthread, thread_func function, void* func_arg);
 void init_thread(struct task_struct* pthread, char* name, int prio);
