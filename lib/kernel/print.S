@@ -128,16 +128,16 @@ put_char:
  .cls:
    mov word [gs:ebx], 0x0720              ;0x0720是黑底白字的空格键
    add ebx, 2
-   loop .cls 
+   loop .cls
    mov bx,1920				  ;将光标值重置为1920,最后一行的首字符.
 
- .set_cursor:   
+ .set_cursor:
 					  ;将光标设为bx值
 ;;;;;;; 1 先设置高8位 ;;;;;;;;
    mov dx, 0x03d4			  ;索引寄存器
    mov al, 0x0e				  ;用于提供光标位置的高8位
    out dx, al
-   mov dx, 0x03d5			  ;通过读写数据端口0x3d5来获得或设置光标位置 
+   mov dx, 0x03d5			  ;通过读写数据端口0x3d5来获得或设置光标位置
    mov al, bh
    out dx, al
 
@@ -145,10 +145,10 @@ put_char:
    mov dx, 0x03d4
    mov al, 0x0f
    out dx, al
-   mov dx, 0x03d5 
+   mov dx, 0x03d5
    mov al, bl
    out dx, al
- .put_char_done: 
+ .put_char_done:
    popad
    ret
 
@@ -170,7 +170,7 @@ put_int:
 .16based_4bits:			       ; 每4位二进制是16进制数字的1位,遍历每一位16进制数字
    and edx, 0x0000000F		       ; 解析16进制数字的每一位。and与操作后,edx只有低4位有效
    cmp edx, 9			       ; 数字0～9和a~f需要分别处理成对应的字符
-   jg .is_A2F 
+   jg .is_A2F
    add edx, '0'			       ; ascii码是8位大小。add求和操作后,edx低8位有效。
    jmp .store
 .is_A2F:
@@ -181,26 +181,26 @@ put_int:
 ;高位字符放在低地址,低位字符要放在高地址,这样和大端字节序类似,只不过咱们这里是字符序.
 .store:
 ; 此时dl中应该是数字对应的字符的ascii码
-   mov [ebx+edi], dl		       
+   mov [ebx+edi], dl
    dec edi
    shr eax, 4
-   mov edx, eax 
+   mov edx, eax
    loop .16based_4bits
 
 ;现在put_int_buffer中已全是字符,打印之前,
 ;把高位连续的字符去掉,比如把字符000123变成123
 .ready_to_print:
    inc edi			       ; 此时edi退减为-1(0xffffffff),加1使其为0
-.skip_prefix_0:  
-   cmp edi,8			       ; 若已经比较第9个字符了，表示待打印的字符串为全0 
-   je .full0 
+.skip_prefix_0:
+   cmp edi,8			       ; 若已经比较第9个字符了，表示待打印的字符串为全0
+   je .full0
 ;找出连续的0字符, edi做为非0的最高位字符的偏移
-.go_on_skip:   
+.go_on_skip:
    mov cl, [put_int_buffer+edi]
    inc edi
-   cmp cl, '0' 
+   cmp cl, '0'
    je .skip_prefix_0		       ; 继续判断下一位字符是否为字符0(不是数字0)
-   dec edi			       ;edi在上面的inc操作中指向了下一个字符,若当前字符不为'0',要恢复edi指向当前字符		       
+   dec edi			       ;edi在上面的inc操作中指向了下一个字符,若当前字符不为'0',要恢复edi指向当前字符
    jmp .put_each_num
 
 .full0:

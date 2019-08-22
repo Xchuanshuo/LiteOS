@@ -46,12 +46,8 @@ static void pic_init(void) {
     outb (PIC_S_DATA, 0x02);	// ICW3: 设置从片连接到主片的IR2引脚
     outb (PIC_S_DATA, 0x01);	// ICW4: 8086模式, 正常EOI
 
-//    /* 打开主片上IR0,也就是目前只接受时钟产生的中断 */
-//    outb (PIC_M_DATA, 0xfe);
-//    outb (PIC_S_DATA, 0xff);
-
     /* 测试键盘,只打开键盘中断，其它全部关闭 */
-    outb (PIC_M_DATA, 0xfd);
+    outb (PIC_M_DATA, 0xfc);
     outb (PIC_S_DATA, 0xff);
 
     put_str("   pic_init done\n");
@@ -91,7 +87,7 @@ static void general_intr_handler(uint8_t vec_nr) {
     set_cursor(0);  // 重置光标为屏幕左上角
     put_str("!!!!!!!     exception message begin !!!!!!!!\n");
     set_cursor(88);  // 从第2行第8个字符开始打印
-    put_str(intr_name[vec_nr]);put_char('\n');
+    put_str(intr_name[vec_nr]);
     if (vec_nr == 14) {
         // 若为Pagefault, 将缺失的地址打印出来并悬停
         int page_fault_vaddr = 0;
@@ -99,7 +95,7 @@ static void general_intr_handler(uint8_t vec_nr) {
         asm ("movl %%cr2,%0" : "=r" (page_fault_vaddr));
         put_str("\npage fault addr is ");put_int((uint32_t) page_fault_vaddr);
     }
-    put_str("!!!!!!!     exception message end !!!!!!!!\n");
+    put_str("\n!!!!!!!      excetion message end    !!!!!!!!\n");
     // 能进入中断处理程序就表示已经处在关中断的情况下
     // 不会出现调度进程的情况,故下面的死循环不会再中断
     while (1);

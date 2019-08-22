@@ -3,6 +3,7 @@
 #include "../kernel/interrupt.h"
 #include "../lib/kernel/io.h"
 #include "../kernel/global.h"
+#include "ioqueue.h"
 
 #define KBD_BUF_PORT 0x60      // 键盘buffer寄存器端口号为0x60
 
@@ -33,6 +34,8 @@
 #define ctrl_r_make 0xe01d
 #define ctrl_r_break 0xe09d
 #define caps_lock_make 0x3a
+
+struct ioqueue kbd_buf;  // 定义键盘缓冲区
 
 /**
  * 定义以下变量记录相应键是否按下的状态, ext_scancode用于记录makecode是否以0xe0开头
@@ -184,7 +187,18 @@ static void intr_keyboard_handler(void) {
         char cur_char = keymap[index][shift];
         // 只处理ascii码不为0的键
         if (cur_char) {
-            put_char(cur_char);
+            /*****************  快捷键ctrl+l和ctrl+u的处理 *********************
+             * 下面是把ctrl+l和ctrl+u这两种组合键产生的字符置为:
+             * cur_char的asc码-字符a的asc码, 此差值比较小,
+             * 属于asc码表中不可见的字符部分.故不会产生可见字符.
+             * 在shell中将ascii值为l-a和u-a的分别处理为清屏和删除输入的快捷键*/
+            if ((ctrl_down_last && cur_char == 'l') ||
+                (ctrl_down_last && cur_char == 'u')) {
+                cur_char -= 'a';
+            }
+            if (!ioq_full(&kbd_buf)) {
+                ioq_putchar(&kbd_buf, cur_char);
+            }
             return;
         }
         // 记录本次是否按下了下面几类控制键之一,供下次键入时判断组合键
@@ -205,6 +219,7 @@ static void intr_keyboard_handler(void) {
 
 void keyboard_init() {
     put_str("keyboard init start\n");
+    ioqueue_init(&kbd_buf);
     register_handler(0x21, intr_keyboard_handler);
     put_str("keyboard init done\n");
 }
