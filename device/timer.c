@@ -1,9 +1,12 @@
 #include "timer.h"
-#include "io.h"
-#include "print.h"
 #include "interrupt.h"
 #include "thread.h"
 #include "debug.h"
+#include "../thread/thread.h"
+#include "../lib/kernel/io.h"
+#include "../kernel/debug.h"
+#include "../lib/kernel/print.h"
+#include "../kernel/interrupt.h"
 
 #define IRQ0_FREQUENCY	   100
 #define INPUT_FREQUENCY	   1193180

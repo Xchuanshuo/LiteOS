@@ -52,8 +52,8 @@ void process_activate(struct task_struct* p_thread) {
     ASSERT(p_thread != NULL);
     // 激活该进程或线程的页表
     page_dir_activate(p_thread);
-    // 内核线程特权级本身就是0,处理器进入中断时并不会从t
-    // ss中获取0特权级栈的地址,故不需要更新esp0
+    // 内核线程特权级本身就是0,处理器进入中断时并不会从
+    // tss中获取0特权级栈的地址,故不需要更新esp0
     if (p_thread->pgdir) {
         // 更新该进程的esp0,用于此进程被中断时保留上下文
         update_tss_esp(p_thread);
