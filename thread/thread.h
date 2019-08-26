@@ -5,6 +5,7 @@
 #include "../lib/kernel/bitmap.h"
 #include "../kernel/memory.h"
 
+#define MAX_FILES_OPEN_PER_PROC 8
 /* 自定义通用函数类型,它将在很多线程函数中作为形参类型 */
 typedef void thread_func(void*);
 typedef int16_t pid_t;
@@ -83,6 +84,9 @@ struct task_struct {
     uint8_t ticks;           // 每次在处理器上执行的时间滴答树
 
     uint32_t elapsed_ticks;  // 此任务上cpu后执行了多久
+
+    int32_t fd_table[MAX_FILES_OPEN_PER_PROC]; // 文件描述符数组
+
     struct list_elem general_tag;  // 线程在一般队列中的节点
     struct list_elem all_list_tag; // 线程队列all_list_thread中的节点
 
