@@ -95,7 +95,7 @@ void bitmap_sync(struct partition* part, uint32_t bit_idx, uint8_t btmp_type) {
     uint32_t off_sec = bit_idx / 4096; // 本inode相对于位图的扇区偏移量
     uint32_t off_size = off_sec * BLOCK_SIZE; // 本inode相对于位图的字节偏移量
     uint32_t sec_lba = 0;
-    uint8_t *bitmap_off = NULL;
+    uint8_t* bitmap_off = NULL;
     switch (btmp_type) {
         case INODE_BITMAP:
             sec_lba = part->sb->inode_bitmap_lba + off_sec;
