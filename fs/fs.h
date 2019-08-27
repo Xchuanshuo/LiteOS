@@ -25,6 +25,13 @@ enum oflags {
     O_CREATE = 4  // 创建
 };
 
+/* 文件读写位置偏移量 */
+enum whence {
+    SEEK_SET = 1,
+    SEEK_CUR,
+    SEEK_END
+};
+
 /** 用来记录查找文件过程中已找到的上级路径,也就是查找文件过程中"走过的地方" */
 struct path_search_record {
     char searched_path[MAX_PATH_LEN]; // 查找过程中的父路径
@@ -39,4 +46,5 @@ int32_t sys_open(const char* pathname, uint8_t flags);
 int32_t sys_close(int32_t fd);
 int32_t sys_write(int32_t fd, const void* buf, uint32_t count);
 int32_t sys_read(int32_t fd, void* buf, uint32_t count);
+int32_t sys_lseek(int32_t fd, int32_t offset, uint8_t whence);
 #endif
