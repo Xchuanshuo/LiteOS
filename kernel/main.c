@@ -10,6 +10,7 @@
 #include "../lib/user/syscall.h"
 #include "../lib/stdio.h"
 #include "../fs/fs.h"
+#include "../lib/string.h"
 
 void k_thread_a(void*);
 void k_thread_b(void*);
@@ -29,10 +30,27 @@ int main(void) {
 //    thread_start("k_thread_a", 31, k_thread_a, "I am thread_a");
 //    thread_start("k_thread_b", 31, k_thread_b, "I am thread_b");
     uint32_t fd = sys_open("/file1", O_RDWR);
-    printf("fd:%d\n", fd);
-    sys_write(fd, "hello,world\n", 12);
+    printf("open /file1, fd:%d\n", fd);
+    char buf[64] = {0};
+    int read_bytes = sys_read(fd, buf, 18);
+    printf("1_ read %d bytes:\n%s\n", read_bytes, buf);
+
+    memset(buf, 0, 64);
+    read_bytes = sys_read(fd, buf, 6);
+    printf("2_ read %d bytes:\n%s", read_bytes, buf);
+
+    memset(buf, 0, 64);
+    read_bytes = sys_read(fd, buf, 6);
+    printf("3_ read %d bytes:\n%s", read_bytes, buf);
+
+    printf("________  close file1 and reopen  ________\n");
     sys_close(fd);
-    printf("%d closed now\n", fd);
+    fd = sys_open("/file1", O_RDWR);
+    memset(buf, 0, 64);
+    read_bytes = sys_read(fd, buf, 24);
+    printf("4_ read %d bytes:\n%s", read_bytes, buf);
+
+    sys_close(fd);
     while(1);
     return 0;
 }
