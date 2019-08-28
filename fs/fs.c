@@ -581,6 +581,52 @@ rollback:	     // 因为某步骤操作失败而回滚
     return -1;
 }
 
+/** 目录打开成功后返回目录指针,失败则返回NULL */
+struct dir* sys_opendir(const char* name) {
+    ASSERT(strlen(name) < MAX_PATH_LEN);
+    // 如果是根目录'/',直接返回&root_dir
+    if (name[0] == '/' && (name[1] == 0 || name[0] == '.')) {
+        return &root_dir;
+    }
+    // 先检查待打开的目录是否存在
+    struct path_search_record searched_record;
+    memset(&searched_record, 0, sizeof(struct path_search_record));
+    int inode_no = search_file(name, &searched_record);
+    struct dir* ret = NULL;
+    if (inode_no == NULL) {
+        printk("In %s, sub path %s not exist!\n", name, searched_record);
+    } else { // 找不到目录
+        if (searched_record.file_type == FT_REGULAR) {
+            printk("%s is regular file!\n", name);
+        } else if (searched_record.file_type == FT_DIRECTORY) {
+            ret = dir_open(cur_part, inode_no);
+        }
+    }
+    dir_close(searched_record.parent_dir);
+    return ret;
+}
+
+/** 成功关闭目录dir返回0,失败返回-1 */
+int32_t sys_closedir(struct dir* dir) {
+    int32_t ret = -1;
+    if (dir != NULL) {
+        dir_close(dir);
+        ret = 0;
+    }
+    return ret;
+}
+
+/** 读取目录dir的1个目录项,成功后返回其目录项地址,到目录尾或出错是返回NULL */
+struct dir_entry* sys_readdir(struct dir* dir) {
+    ASSERT(dir != NULL);
+    return dir_read(dir);
+}
+
+/** 把目录dir_pos置0 */
+void sys_rewinddir(struct dir* dir) {
+    dir->dir_pos = 0;
+}
+
 /** 在磁盘上搜索文件系统,若没有则格式化分区创建文件系统 */
 void filesys_init() {
     uint8_t channel_no = 0, dev_no, part_idx = 0;

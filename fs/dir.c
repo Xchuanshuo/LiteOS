@@ -329,3 +329,56 @@ bool delete_dir_entry(struct partition* part, struct dir* pdir,
     // 所有块中未找到则返回false,若出现这种情况应该是serarch_file出错了
     return false;
 }
+
+/** 读取目录,成功返回1个目录项,失败返回NULL */
+struct dir_entry* dir_read(struct dir* dir) {
+    struct dir_entry* dir_e = (struct dir_entry*) dir->dir_buf;
+    struct inode* dir_inode = dir->inode;
+    uint32_t all_blocks[140] = {0}, block_cnt = 12;
+    uint32_t block_idx = 0, dir_entry_idx = 0;
+    while (block_idx < 12) {
+        all_blocks[block_idx] = dir_inode->i_sectors[block_idx];
+        block_idx++;
+    }
+    if (dir_inode->i_sectors[12] != 0) { // 若含有一级间接块表
+        ide_read(cur_part->my_disk, dir_inode->i_sectors[12], all_blocks + 12, 1);
+        block_cnt = 140;
+    }
+    block_idx = 0;
+    // 当前目录项的偏移,此项用来判断是不是之前已经返回过的目录项
+    uint32_t cur_dir_entry_pos = 0;
+    uint32_t dir_entry_size = cur_part->sb->dir_entry_size;
+    // 一扇区可容纳的页目录项
+    uint32_t dir_entry_per_sec = SECTOR_SIZE / dir_entry_size;
+    // 因为此目录可能删除了某些文件或子目录,所以要遍历所有块
+    while (block_idx < block_cnt) {
+        if (dir->dir_pos >= dir_inode->i_size) {
+            return NULL;
+        }
+        if (all_blocks[block_idx] == 0) { // 空数据块直接跳过
+            block_idx++;
+            continue;
+        }
+        memset(dir_e, 0, SECTOR_SIZE);
+        ide_read(cur_part->my_disk, all_blocks[block_idx], dir_e, 1);
+        dir_entry_idx = 0;
+        // 遍历扇区内所有目录项
+        while (dir_entry_idx < dir_entry_per_sec) {
+            if ((dir_e + dir_entry_idx)->f_type != FT_UNKNOWN) {
+                // 判断是不是最新的目录项,避免返回之前已经返回过的目录项
+                if (cur_dir_entry_pos < dir->dir_pos) {
+                    cur_dir_entry_pos += dir_entry_size;
+                    dir_entry_idx++;
+                    continue;
+                }
+                ASSERT(cur_dir_entry_pos == dir->dir_pos);
+                // 更新为新位置,即下一个目录项的地址
+                dir->dir_pos += dir_entry_size;
+                return dir_e + dir_entry_idx;
+            }
+            dir_entry_idx++;
+        }
+        block_idx++;
+    }
+    return NULL;
+}
