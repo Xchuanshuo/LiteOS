@@ -382,3 +382,32 @@ struct dir_entry* dir_read(struct dir* dir) {
     }
     return NULL;
 }
+
+/** 判断目录是否为空 */
+bool dir_is_empty(struct dir* dir) {
+    struct inode* dir_inode = dir->inode;
+    // 若目录下只有.和..这两个目录项则目录为空
+    return dir_inode->i_size == cur_part->sb->dir_entry_size * 2;
+}
+
+/** 在父目录parent_dir中删除子目录 */
+int32_t dir_remove(struct dir* parent_dir, struct dir* child_dir) {
+    struct inode* child_dir_inode = child_dir->inode;
+    // 空目录只在inode->i_sectors[0]中有扇区,其它扇区应该为空
+    int32_t block_idx = 1;
+    while (block_idx < 13) {
+        ASSERT(child_dir_inode->i_sectors[block_idx] == 0);
+        block_idx++;
+    }
+    void* io_buf = sys_malloc(SECTOR_SIZE * 2);
+    if (io_buf == NULL) {
+        printk("dir_remove: malloc for io_buf failed!\n");
+        return -1;
+    }
+    // 在父目录parent_dir中删除子目录child_dir对应的目录项
+    delete_dir_entry(cur_part, parent_dir, child_dir_inode->i_no, io_buf);
+    // 回收inode中i_sectors中所占用的扇区,并同步inode_bitmap和block_bitmap
+    inode_release(cur_part, child_dir_inode->i_no);
+    sys_free(io_buf);
+    return 0;
+}
