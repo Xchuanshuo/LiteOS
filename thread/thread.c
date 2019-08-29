@@ -19,6 +19,7 @@ struct lock pid_lock;                // 分配pid锁
 static struct list_elem* thread_tag; // 用于保存队列中的线程结点
 
 extern void switch_to(struct task_struct* cur, struct task_struct* next);
+extern void init(void);
 
 /** 系统空闲时运行的线程 */
 static void idle(void* arg UNUSED) {
@@ -37,6 +38,13 @@ struct task_struct* running_thread() {
     return (struct task_struct*)(esp & 0xfffff000);
 }
 
+/* 由kernel_thread去执行function(func_arg) */
+static void kernel_thread(thread_func* function, void* func_arg) {
+    // 执行function前要开中断,避免后面的时钟中断被屏蔽而无法调度其它线程
+    intr_enable();
+    function(func_arg);
+}
+
 /** 分配pid */
 static pid_t allocate_pid(void) {
     static pid_t next_pid = 0;
@@ -46,11 +54,10 @@ static pid_t allocate_pid(void) {
     return next_pid;
 }
 
-/* 由kernel_thread去执行function(func_arg) */
-static void kernel_thread(thread_func* function, void* func_arg) {
-    // 执行function前要开中断,避免后面的时钟中断被屏蔽而无法调度其它线程
-    intr_enable();
-    function(func_arg);
+/** fork进程时为其分配pid,因为allocate_pid已经是静态的,别的文件无法调用.
+不想改变函数定义了,故定义fork_pid函数来封装一下*/
+pid_t fork_pid(void) {
+    return allocate_pid();
 }
 
 /* 初始化线程栈thread_stack,将待执行的函数和参数放到thread_stack中相应的位置 */
@@ -213,6 +220,7 @@ void thread_init(void) {
     list_init(&thread_ready_list);
     list_init(&thread_all_list);
     lock_init(&pid_lock);
+    process_execute(init, "init");
     // 将当前main函数创建为线程
     make_main_thread();
     // 创建idle线程

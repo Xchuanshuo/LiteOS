@@ -1,4 +1,5 @@
 #include "syscall.h"
+#include "../../thread/thread.h"
 
 /* 无参数的系统调用 */
 #define _syscall0(NUMBER) ({				       \
@@ -66,4 +67,9 @@ void* malloc(uint32_t size) {
 /** 释放ptr指向的内存 */
 void free(void* ptr) {
    _syscall1(SYS_FREE, ptr);
+}
+
+/** 派生子进程,返回子进程pid */
+pid_t fork(void){
+   return _syscall0(SYS_FORK);
 }

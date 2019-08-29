@@ -82,19 +82,15 @@ struct task_struct {
     char name[16];
     uint8_t priority;        // 线程优先级
     uint8_t ticks;           // 每次在处理器上执行的时间滴答树
-
     uint32_t elapsed_ticks;  // 此任务上cpu后执行了多久
-
     int32_t fd_table[MAX_FILES_OPEN_PER_PROC]; // 文件描述符数组
-
     struct list_elem general_tag;  // 线程在一般队列中的节点
     struct list_elem all_list_tag; // 线程队列all_list_thread中的节点
-
     uint32_t* pgdir;   // 进程自己页表的虚拟空间
     struct virtual_addr userprog_vaddr; // 用户进程的虚拟地址
     struct mem_block_desc u_block_desc[DESC_CNT]; // 用户进程内存块描述符
-
     uint32_t cwd_inode_no; // 进程所在的工作目录的inode编号
+    int16_t parent_id; // 父进程pid
     uint32_t stack_magic;  // 栈的边界标记,用于检测栈的溢出
 };
 
@@ -110,4 +106,5 @@ void thread_init(void);
 void thread_block(enum task_status stat);
 void thread_unblock(struct task_struct* pthread);
 void thread_yield(void);
+pid_t fork_pid(void);
 #endif
