@@ -11,4 +11,4 @@ add_executable(LiteOS main.c kernel/init.c lib kernel boot device thread shell u
         userprog/tss.c userprog/process.h userprog/process.c lib/user/syscall.h lib/user/syscall.c userprog/syscall-init.h
         userprog/syscall-init.c lib/stdio.h lib/stdio.c lib/kernel/stdio-kernel.h lib/kernel/stdio-kernel.c
         device/ide.h device/ide.c fs/super_block.h fs/inode.h fs/dir.h fs/fs.h fs/fs.c fs/inode.c fs/file.h
-        fs/file.c fs/dir.c userprog/fork.h userprog/fork.c shell/shell.h shell/shell.c lib/user/assert.h lib/user/assert.c)
+        fs/file.c fs/dir.c userprog/fork.h userprog/fork.c shell/shell.h shell/shell.c lib/user/assert.h lib/user/assert.c shell/buildin_cmd.h shell/buildin_cmd.c)
