@@ -73,3 +73,18 @@ void free(void* ptr) {
 pid_t fork(void){
    return _syscall0(SYS_FORK);
 }
+
+/** 从文件描述符fd中读取count个字节到buf */
+int32_t read(int32_t fd, void* buf, uint32_t count) {
+    return _syscall3(SYS_READ, fd, buf, count);
+}
+
+/** 输出一个字符 */
+void putchar(char char_asci) {
+    _syscall1(SYS_PUTCHAR, char_asci);
+}
+
+/** 清空屏幕 */
+void clear(void) {
+    _syscall0(SYS_CLEAR);
+}
