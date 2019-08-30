@@ -7,3 +7,5 @@
 /build
 /cmake-build-debug
 /main.c
+/command
+/command(复件)

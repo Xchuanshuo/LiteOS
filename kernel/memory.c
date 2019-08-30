@@ -8,6 +8,7 @@
 #include "../thread/thread.h"
 #include "../thread/sync.h"
 #include "interrupt.h"
+#include "../lib/kernel/stdio-kernel.h"
 
 #define PG_SIZE 4096
 
@@ -136,7 +137,6 @@ static void page_table_add(void* _vaddr, void* _page_phyaddr) {
         *pte = (page_phyaddr | PG_US_U | PG_RW_W | PG_P_1);
     }
 }
-
 /* 分配pg_cnt个页空间,成功则返回虚拟地址,失败时返回NULL */
 void* malloc_page(enum pool_flags pf, uint32_t pg_cnt) {
     ASSERT(pg_cnt > 0 && pg_cnt < 3840);
@@ -175,41 +175,48 @@ void* get_kernel_pages(uint32_t pg_cnt) {
     return vaddr;
 }
 
-/** 在用户内存池申请pg_cnt页内存, 并返回其虚拟地址 */
+
+/* 在用户空间中申请4k内存,并返回其虚拟地址 */
 void* get_user_pages(uint32_t pg_cnt) {
-    lock_acquire(&user_pool.lock);
-    void* vaddr = malloc_page(PF_USER, pg_cnt);
-    memset(vaddr, 0, pg_cnt * PG_SIZE);
-    lock_release(&user_pool.lock);
-    return vaddr;
+   lock_acquire(&user_pool.lock);
+   void* vaddr = malloc_page(PF_USER, pg_cnt);
+   if (vaddr != NULL) {	   // 若分配的地址不为空,将页框清0后返回
+      memset(vaddr, 0, pg_cnt * PG_SIZE);
+   }
+   lock_release(&user_pool.lock);
+   return vaddr;
 }
 
-/** 将地址vaddr与pf池中的物理地址相关联,仅支持一页空间分配 */
+/** 将地址vaddr与pf池中的物理地址关联,仅支持一页空间分配 */
 void* get_a_page(enum pool_flags pf, uint32_t vaddr) {
     struct pool* mem_pool = pf & PF_KERNEL ? &kernel_pool : &user_pool;
     lock_acquire(&mem_pool->lock);
+    // 先将虚拟地址对应的位图置1
     struct task_struct* cur = running_thread();
     int32_t bit_idx = -1;
     // 若当前是用户进程申请用户内存,就修改用户进程自己的虚拟地址位图
     if (cur->pgdir != NULL && pf == PF_USER) {
         bit_idx = (vaddr - cur->userprog_vaddr.vaddr_start) / PG_SIZE;
-        ASSERT(bit_idx > 0);
+        ASSERT(bit_idx >= 0);
         bitmap_set(&cur->userprog_vaddr.vaddr_bitmap, bit_idx, 1);
-    } else if (cur->pgdir == NULL && pf == PF_KERNEL) {
+
+    } else if (cur->pgdir == NULL && pf == PF_KERNEL){
+        // 如果是内核线程申请内核内存,就修改kernel_vaddr.
         bit_idx = (vaddr - kernel_vaddr.vaddr_start) / PG_SIZE;
         ASSERT(bit_idx > 0);
         bitmap_set(&kernel_vaddr.vaddr_bitmap, bit_idx, 1);
     } else {
-        PANIC("get_a_page:not allow kernel alloc user space or user alloc kernel space by get_a_page");
+        PANIC("get_a_page:not allow kernel alloc userspace or user alloc kernelspace by get_a_page");
     }
 
     void* page_phyaddr = palloc(mem_pool);
     if (page_phyaddr == NULL) {
+        lock_release(&mem_pool->lock);
         return NULL;
     }
-    page_table_add((void*) vaddr, page_phyaddr);
+    page_table_add((void*)vaddr, page_phyaddr);
     lock_release(&mem_pool->lock);
-    return (void*) vaddr;
+    return (void*)vaddr;
 }
 
 /** 安装1页大小的vaddr,专门针对fork时虚拟地址位图无须操作的情况 */
@@ -312,12 +319,12 @@ void* sys_malloc(uint32_t size) {
             // cnt置为此arena可用的内存块数,large为false
             a->desc = &descs[desc_idx];
             a->large = false;
-            a->cnt = descs[desc_idx].block_per_arena;
+            a->cnt = descs[desc_idx].blocks_per_arena;
             uint32_t block_idx;
 
             enum intr_status old_status = intr_disable();
             // 开始将arena拆分成内存块,并添加到内存块描述符的free_list中
-            for (block_idx = 0;block_idx < descs[desc_idx].block_per_arena;block_idx++) {
+            for (block_idx = 0;block_idx < descs[desc_idx].blocks_per_arena;block_idx++) {
                 b = arena2block(a, block_idx);
                 ASSERT(!elem_find(&a->desc->free_list, &b->free_elem));
                 list_append(&a->desc->free_list, &b->free_elem);
@@ -441,9 +448,9 @@ void sys_free(void* ptr) {
             // 先将内存块回收到free_list
             list_append(&a->desc->free_list, &b->free_elem);
             // 再判断此arena中的内存块是否都是空闲,如果是就释放arena
-            if (++a->cnt == a->desc->block_per_arena) {
+            if (++a->cnt == a->desc->blocks_per_arena) {
                 uint32_t block_idx;
-                for (block_idx = 0;block_idx < a->desc->block_per_arena;block_idx++) {
+                for (block_idx = 0;block_idx < a->desc->blocks_per_arena;block_idx++) {
                     b = arena2block(a, block_idx);
                     ASSERT(elem_find(&a->desc->free_list, &b->free_elem));
                     list_remove(&b->free_elem);
@@ -532,7 +539,7 @@ void block_desc_init(struct mem_block_desc* desc_array) {
     for (desc_idx = 0; desc_idx < DESC_CNT;desc_idx++) {
         desc_array[desc_idx].block_size = block_size;
         // 初始化arena中的内存块数量
-        desc_array[desc_idx].block_per_arena =
+        desc_array[desc_idx].blocks_per_arena =
                 (PG_SIZE - sizeof(struct arena)) / block_size;
         list_init(&desc_array[desc_idx].free_list);
         block_size *= 2;

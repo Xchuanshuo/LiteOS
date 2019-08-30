@@ -104,7 +104,7 @@ void init_thread(struct task_struct* pthread, char* name, int prio) {
         pthread->fd_table[fd_idx] = -1;
         fd_idx++;
     }
-    pthread->cwd_inode_no = 0; // 以根目录作为默认路径
+    pthread->cwd_inode_nr = 0; // 以根目录作为默认路径
     pthread->stack_magic = 0x19870916;   // 自定义的魔数
 }
 
@@ -242,10 +242,10 @@ static bool elem2thread_info(struct list_elem* pelem, int arg UNUSED) {
     char out_pad[16] = {0};
     pad_print(out_pad, 16, &pthread->pid, 'd');
 
-    if (pthread->parent_id == -1) {
+    if (pthread->parent_pid == -1) {
         pad_print(out_pad, 16, "NULL", 's');
     } else {
-        pad_print(out_pad, 16, &pthread->parent_id, 'd');
+        pad_print(out_pad, 16, &pthread->parent_pid, 'd');
     }
     switch (pthread->status) {
         case TASK_RUNNING:

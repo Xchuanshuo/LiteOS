@@ -22,7 +22,7 @@ enum oflags {
     O_RDONLY,  // 只读
     O_WRONLY,  // 只写
     O_RDWR,    // 读写
-    O_CREATE = 4  // 创建
+    O_CREAT = 4  // 创建
 };
 
 /* 文件读写位置偏移量 */
