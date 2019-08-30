@@ -5,6 +5,7 @@
 #include "../lib/kernel/bitmap.h"
 #include "../kernel/memory.h"
 
+#define TASK_NAME_LEN 16
 #define MAX_FILES_OPEN_PER_PROC 8
 /* 自定义通用函数类型,它将在很多线程函数中作为形参类型 */
 typedef void thread_func(void*);

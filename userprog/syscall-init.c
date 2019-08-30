@@ -7,6 +7,7 @@
 #include "../lib/string.h"
 #include "../fs/fs.h"
 #include "fork.h"
+#include "exec.h"
 
 #define syscall_nr 32
 typedef void* syscall;
@@ -42,6 +43,7 @@ void syscall_init(void) {
     syscall_table[SYS_REWINDDIR] = sys_rewinddir;
     syscall_table[SYS_STAT] = sys_stat;
     syscall_table[SYS_PS] = sys_ps;
+    syscall_table[SYS_EXECV] = sys_execv;
     put_str("syscall_init done\n");
 }
 
