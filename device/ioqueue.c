@@ -80,3 +80,14 @@ void ioq_putchar(struct ioqueue* ioq, char byte) {
     }
 }
 
+/** 返回环形缓冲区中的数据长度 */
+uint32_t ioq_length(struct ioqueue* ioq) {
+    uint32_t len = 0;
+    if (ioq->head >= ioq->tail) {
+        len = ioq->head - ioq->tail;
+    } else {
+        len = bufsize - (ioq->tail - ioq->head);
+    }
+    return len;
+}
+

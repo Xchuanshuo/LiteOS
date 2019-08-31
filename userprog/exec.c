@@ -153,17 +153,16 @@ done:
     return ret;
 }
 
-/** 用path指向的程序替换当前进程 */
+/* 用path指向的程序替换当前进程 */
 int32_t sys_execv(const char* path, const char* argv[]) {
-    uint32_t argc = 0;
+   uint32_t argc = 0;
     while (argv[argc]) argc++;
     int32_t entry_point = load(path); // 加载程序文件
     if (entry_point == -1) return -1; // 加载失败返回-1
 
     struct task_struct* cur = running_thread();
     // 修改进程名
-    memcmp(cur->name, path, TASK_NAME_LEN);
-    cur->name[TASK_NAME_LEN - 1] = 0;
+    memcpy(cur->name, path, TASK_NAME_LEN);
     struct intr_stack* intr_0_stack = (struct intr_stack*) ((uint32_t)cur
             + PG_SIZE - sizeof(struct intr_stack));
     // 参数传递给用户进程

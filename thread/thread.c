@@ -347,7 +347,7 @@ static bool pid_check(struct list_elem* pelem, int32_t pid) {
 struct task_struct* pid2thread(int32_t pid) {
     struct list_elem* pelem = list_traversal(&thread_all_list, pid_check, pid);
     if (pelem == NULL) return NULL;
-    struct task_struct* pthread = elem2entry(struct task_struct, all_list_tag, pid);
+    struct task_struct* pthread = elem2entry(struct task_struct, all_list_tag, pelem);
     return pthread;
 }
 

@@ -4,6 +4,8 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/deployment.xml
+/.idea/webServers.xml
 /build
 /cmake-build-debug
 /main.c
