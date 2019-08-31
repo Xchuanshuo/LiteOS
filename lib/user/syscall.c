@@ -163,3 +163,13 @@ void ps(void) {
 int execv(const char* pathname, char** argv) {
    return _syscall2(SYS_EXECV, pathname, argv);
 }
+
+/** 以状态status退出 */
+void exit(int32_t status) {
+   _syscall1(SYS_EXIT, status);
+}
+
+/** 等待子进程,子进程状态存储到status */
+pid_t wait(int32_t* status) {
+   return _syscall1(SYS_WAIT, status);
+}

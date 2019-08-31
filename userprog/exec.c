@@ -77,7 +77,6 @@ static bool segment_load(int32_t fd, uint32_t offset,
     // 为进程分配内存
     uint32_t page_idx = 0;
     uint32_t vaddr_page = vaddr_first_page;
-    printk("real read prog_header malloc.....\n");
     while (page_idx < occupy_pages) {
         uint32_t* pde = pde_ptr(vaddr_page);
         uint32_t* pte = pte_ptr(vaddr_page);
@@ -92,7 +91,6 @@ static bool segment_load(int32_t fd, uint32_t offset,
         vaddr_page += PG_SIZE;
         page_idx++;
     }
-    printk("real read prog_header.....%d\n", filesz);
     sys_lseek(fd, offset, SEEK_SET);
     sys_read(fd, (void*) vaddr, filesz);
     return true;
@@ -127,7 +125,6 @@ static int32_t load(const char* pathname) {
     Elf32_Off prog_header_offset = elf_header.e_phoff;
     // 程序头表中每个条目的字节大小
     Elf32_Half prog_header_size = elf_header.e_phentsize;
-    printk("elf load starting....%x\n", elf_header.e_entry);
     // 遍历所有程序头
     uint32_t prog_idx = 0;
     while (prog_idx < elf_header.e_phnum) {
@@ -135,26 +132,21 @@ static int32_t load(const char* pathname) {
         // 将文件的指针定位到程序头
         sys_lseek(fd, prog_header_offset, SEEK_SET);
         // 只获取程序头
-        printk("elf read pro_header...\n");
         if (sys_read(fd, &prog_header, prog_header_size) != prog_header_size) {
             ret = -1;
             goto done;
         }
-        printk("elf read pro_header finished...\n");
         // 如果是可加载段就调用segment_load加载到内存
-        printk("starting load segment...\n");
         if (PT_LOAD == prog_header.p_type) {
             if (!segment_load(fd, prog_header.p_offset, prog_header.p_filesz, prog_header.p_vaddr)) {
                 ret = -1;
                 goto done;
             }
         }
-        printk("starting load segment finished...");
         // 更新下一个程序头的偏移
         prog_header_offset += elf_header.e_phentsize;
         prog_idx++;
     }
-    printk("elf load finished....%x\n", elf_header.e_entry);
     ret = elf_header.e_entry;
 done:
     sys_close(fd);

@@ -507,11 +507,8 @@ int32_t file_read(struct file* file, void* buf, uint32_t count) {
         bytes_read += chunk_size;
         size_left -= chunk_size;
     }
-    printk("file_read: real read prog_header.....%d\n", bytes_read);
     sys_free(all_blocks);
-    printk("file_read: free all_blocks..finished...%d\n");
     sys_free(io_buf);
-    printk("file_read: free io_buf..finished...%d\n");
     return bytes_read;
 }
 

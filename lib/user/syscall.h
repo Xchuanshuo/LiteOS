@@ -25,7 +25,9 @@ enum SYSCALL_NR {
     SYS_REWINDDIR,
     SYS_STAT,
     SYS_PS,
-    SYS_EXECV
+    SYS_EXECV,
+    SYS_EXIT,
+    SYS_WAIT
 };
 uint32_t getpid(void);
 uint32_t write(int32_t fd, const void* buf, uint32_t count);
