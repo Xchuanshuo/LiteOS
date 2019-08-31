@@ -49,6 +49,8 @@ void syscall_init(void) {
     syscall_table[SYS_WAIT] = sys_wait;
     syscall_table[SYS_EXIT] = sys_exit;
     syscall_table[SYS_PIPE] = sys_pipe;
+    syscall_table[SYS_FD_REDIRECT] = sys_fd_redirect;
+    syscall_table[SYS_HELP] = sys_help;
     put_str("syscall_init done\n");
 }
 
