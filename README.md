@@ -13,7 +13,9 @@
 - 外部程序的执行(elf文件的解析与加载,不过只能使用os内部的接口)
 - 管道的基础实现
 
-## 演示视频
-<video id="video" controls="" preload="none" poster="http://img.blog.fandong.me/2017-08-26-Markdown-Advance-Video.jpg">
-    <source id="mp4" src="http://img.blog.fandong.me/2017-08-26-Markdown-Advance-Video.mp4" type="video/mp4">
-</video>
+### 已知bug
+使用touch创建文件后,再执行外部程序,bochs会出现物理内存不可用的错误,必须重新
+进入才能正常执行.
+
+## 演示图片
+![演示](https://github.com/Xchuanshuo/LiteOS/blob/master/resource/out.gif)
