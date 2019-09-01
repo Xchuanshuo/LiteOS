@@ -257,7 +257,6 @@ int32_t buildin_rm(uint32_t argc, char** argv) {
             } else {
                 printf("rm: delete %s failed.\n", argv[1]);
             }
-
         }
     }
     return ret;
@@ -267,5 +266,42 @@ int32_t buildin_rm(uint32_t argc, char** argv) {
 void buildin_help(uint32_t argc UNUSED, char** argv UNUSED) {
     help();
 }
+
+void buildin_touch(uint32_t argc, char** argv) {
+    if (argc != 2) {
+        printf("touch: only support 1 argument!\n");
+    } else {
+        make_clear_abs_path(argv[1], final_path);
+        int32_t fd = open(final_path, O_CREAT);
+        if (fd != -1) {
+            close(fd);
+        }
+    }
+}
+
+void buildin_echo(uint32_t argc, char** argv) {
+    if (argc == 2) {
+        printf("%s\n",argv[1]);
+    } else if (argc == 4) {
+        if (argv[2][0] != '<') {
+            printf("touch: invalid input!\n");
+            return;
+        }
+        if (argv[1][0] == '"') {
+            argv[1] = argv[1] + 1;
+        }
+        make_clear_abs_path(argv[3], final_path);
+        int32_t fd = open(final_path, O_CREAT|O_RDWR);
+        if (fd != -1) {
+            if(write(fd, argv[1], strlen(argv[1]) - 1) != -1) {
+                close(fd);
+            }
+        }
+    } else {
+        printf("touch: only support 2 or 4 argument!\n");
+    }
+}
+
+
 
 

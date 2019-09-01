@@ -431,7 +431,7 @@ void sys_free(void* ptr) {
         struct pool* mem_pool;
         // 判断是线程还是进程
         if (running_thread()->pgdir == NULL) {
-            ASSERT((uint32_t)ptr >= K_HEAP_START);
+//            ASSERT((uint32_t)ptr >= K_HEAP_START);
             PF = PF_KERNEL;
             mem_pool = &kernel_pool;
         } else {

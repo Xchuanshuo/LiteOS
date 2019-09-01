@@ -321,9 +321,10 @@ int32_t sys_open(const char* pathname, uint8_t flags) {
         return -1;
     } else if (found && flags & O_CREAT) {
         // 若要创建的文件已经存在
+        flags &= ~O_CREAT;
         printk("%s has already exist!\n", pathname);
         dir_close(searched_record.parent_dir);
-        return -1;
+//        return -1;
     }
     switch (flags & O_CREAT) {
         case O_CREAT:
@@ -461,11 +462,11 @@ int32_t sys_lseek(int32_t fd, int32_t offset, uint8_t whence) {
     return pf->fd_pos;
 }
 
-/* 删除文件(非目录),成功返回0,失败返回-1 */
+/** 删除文件(非目录),成功返回0,失败返回-1 */
 int32_t sys_unlink(const char* pathname) {
    ASSERT(strlen(pathname) < MAX_PATH_LEN);
 
-   /* 先检查待删除的文件是否存在 */
+   // 先检查待删除的文件是否存在
    struct path_search_record searched_record;
    memset(&searched_record, 0, sizeof(struct path_search_record));
    int inode_no = search_file(pathname, &searched_record);
@@ -495,7 +496,7 @@ int32_t sys_unlink(const char* pathname) {
       return -1;
    }
    ASSERT(file_idx == MAX_FILE_OPEN);
-   
+
    /* 为delete_dir_entry申请缓冲区 */
    void* io_buf = sys_malloc(SECTOR_SIZE + SECTOR_SIZE);
    if (io_buf == NULL) {
@@ -504,15 +505,15 @@ int32_t sys_unlink(const char* pathname) {
       return -1;
    }
 
-   struct dir* parent_dir = searched_record.parent_dir;  
+   struct dir* parent_dir = searched_record.parent_dir;
    delete_dir_entry(cur_part, parent_dir, inode_no, io_buf);
    inode_release(cur_part, inode_no);
    sys_free(io_buf);
    dir_close(searched_record.parent_dir);
-   return 0;   // 成功删除文件 
+   return 0;   // 成功删除文件
 }
 
-/* 创建目录pathname,成功返回0,失败返回-1 */
+/** 创建目录pathname,成功返回0,失败返回-1 */
 int32_t sys_mkdir(const char* pathname) {
    uint8_t rollback_step = 0;	       // 用于操作失败时回滚各资源状态
    void* io_buf = sys_malloc(SECTOR_SIZE * 2);
@@ -544,7 +545,7 @@ int32_t sys_mkdir(const char* pathname) {
    /* 目录名称后可能会有字符'/',所以最好直接用searched_record.searched_path,无'/' */
    char* dirname = strrchr(searched_record.searched_path, '/') + 1;
 
-   inode_no = inode_bitmap_alloc(cur_part); 
+   inode_no = inode_bitmap_alloc(cur_part);
    if (inode_no == -1) {
       printk("sys_mkdir: allocate inode failed\n");
       rollback_step = 1;
@@ -568,11 +569,11 @@ int32_t sys_mkdir(const char* pathname) {
    block_bitmap_idx = block_lba - cur_part->sb->data_start_lba;
    ASSERT(block_bitmap_idx != 0);
    bitmap_sync(cur_part, block_bitmap_idx, BLOCK_BITMAP);
-   
+
    /* 将当前目录的目录项'.'和'..'写入目录 */
    memset(io_buf, 0, SECTOR_SIZE * 2);	 // 清空io_buf
    struct dir_entry* p_de = (struct dir_entry*)io_buf;
-   
+
    /* 初始化当前目录"." */
    memcpy(p_de->filename, ".", 1);
    p_de->i_no = inode_no ;
@@ -619,7 +620,7 @@ int32_t sys_mkdir(const char* pathname) {
 rollback:	     // 因为某步骤操作失败而回滚
    switch (rollback_step) {
       case 2:
-	 bitmap_set(&cur_part->inode_bitmap, inode_no, 0);	 // 如果新文件的inode创建失败,之前位图中分配的inode_no也要恢复 
+	 bitmap_set(&cur_part->inode_bitmap, inode_no, 0);	 // 如果新文件的inode创建失败,之前位图中分配的inode_no也要恢复
       case 1:
 	 /* 关闭所创建目录的父目录 */
 	 dir_close(searched_record.parent_dir);
@@ -642,14 +643,14 @@ struct dir* sys_opendir(const char* name) {
    memset(&searched_record, 0, sizeof(struct path_search_record));
    int inode_no = search_file(name, &searched_record);
    struct dir* ret = NULL;
-   if (inode_no == -1) {	 // 如果找不到目录,提示不存在的路径 
-      printk("In %s, sub path %s not exist\n", name, searched_record.searched_path); 
+   if (inode_no == -1) {	 // 如果找不到目录,提示不存在的路径
+       // printk("In %s, sub path %s not exist\n", name, searched_record.searched_path);
    } else {
-      if (searched_record.file_type == FT_REGULAR) {
-	 printk("%s is regular file!\n", name);
-      } else if (searched_record.file_type == FT_DIRECTORY) {
-	 ret = dir_open(cur_part, inode_no);
-      }
+       if (searched_record.file_type == FT_REGULAR) {
+           printk("%s is regular file!\n", name);
+       } else if (searched_record.file_type == FT_DIRECTORY) {
+           ret = dir_open(cur_part, inode_no);
+       }
    }
    dir_close(searched_record.parent_dir);
    return ret;
@@ -685,11 +686,11 @@ int32_t sys_rmdir(const char* pathname) {
    ASSERT(inode_no != 0);
    int32_t retval = -1;	// 默认返回值
    if (inode_no == -1) {
-      printk("In %s, sub path %s not exist\n", pathname, searched_record.searched_path); 
+      printk("In %s, sub path %s not exist\n", pathname, searched_record.searched_path);
    } else {
       if (searched_record.file_type == FT_REGULAR) {
 	 printk("%s is regular file!\n", pathname);
-      } else { 
+      } else {
 	 struct dir* dir = dir_open(cur_part, inode_no);
 	 if (!dir_is_empty(dir)) {	 // 非空目录不可删除
 	    printk("dir %s is not empty, it is not allowed to delete a nonempty directory!\n", pathname);
