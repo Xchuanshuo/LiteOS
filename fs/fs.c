@@ -873,12 +873,13 @@ void sys_help(void) {
        rm: remove a regular file\n\
        pwd: show current work directory\n\
        ps: show process information\n\
+       touch: create a new file\n\
+       echo: write some bytes to the file or create a new file\n\
        clear: clear screen\n\
  shortcut key:\n\
        ctrl+l: clear screen\n\
        ctrl+u: clear input\n\n");
 }
-
 
 /** 在磁盘上搜索文件系统,若没有则格式化分区创建文件系统 */
 void filesys_init() {

@@ -20,7 +20,7 @@ char cwd_cache[64] = {0};
 
 /** 输出提示符 */
 void print_prompt(void) {
-    printf("[rabbit@localhost %s]$ ", cwd_cache);
+    printf("[legend@localhost %s]$ ", cwd_cache);
 }
 
 /** 从键盘缓冲区中最多读入count个字节到buf */

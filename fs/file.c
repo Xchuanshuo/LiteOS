@@ -132,7 +132,12 @@ int32_t file_create(struct dir* parent_dir, char* filename, uint8_t flag) {
     }
     // inode要从堆内存中申请,不可生成局部变量(函数退出时会释放)
     // 因为file_table数组中的文件描述符的inode指针要指向它
+    struct task_struct* cur = running_thread();
+    // 备份当前进程的页表地址,inode所需的空间必须由内核内存池来分配
+    uint32_t* page_backup = cur->pgdir;
+    cur->pgdir = NULL;
     struct inode* new_file_node = (struct inode*)sys_malloc(sizeof(struct inode));
+    cur->pgdir = page_backup;
     if (new_file_node == NULL) {
         printk("file_create: sys_malloc for inode failded\n");
         rollback_step = 1;

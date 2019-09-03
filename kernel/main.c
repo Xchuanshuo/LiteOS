@@ -36,7 +36,7 @@ int main(void) {
 //    }
 /*************    写入应用程序结束   *************/
     cls_screen();
-    console_put_str("[rabbit@localhost /]$ ");
+    console_put_str("[legend@localhost /]$ ");
     while(1);
 //    thread_exit(running_thread(), true);
     return 0;
